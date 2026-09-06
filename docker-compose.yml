@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: crimesight_postgres
+    environment:
+      POSTGRES_USER: crimesight_user
+      POSTGRES_PASSWORD: crimesight_pass
+      POSTGRES_DB: crimesight_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crimesight_user -d crimesight_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: .
+    container_name: crimesight_fastapi
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://crimesight_user:crimesight_pass@db:5432/crimesight_db
+      - SECRET_KEY=super_secret_sih_2026_crimesight_jwt_key
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
