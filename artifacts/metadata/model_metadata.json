@@ -1,0 +1,43 @@
+{
+  "model_name": "LightGBM_Cashout_Predictor",
+  "model_version": "v1.0.0",
+  "created_at": "2026-09-07T14:17:08.075266",
+  "target": "target (cashout at candidate location during T -> T+6h)",
+  "prediction_horizon_hours": 6,
+  "features": [
+    "hour_of_day",
+    "day_of_week",
+    "is_weekend",
+    "time_since_complaint_min",
+    "time_since_last_txn_min",
+    "tx_count_last_1h",
+    "tx_count_last_6h",
+    "tx_amount_last_1h",
+    "tx_amount_last_6h",
+    "transfer_count",
+    "amount_velocity_ratio",
+    "fraud_amount",
+    "cumulative_known_transfer_amount",
+    "dist_victim_to_candidate_km",
+    "dist_last_activity_to_candidate_km",
+    "atm_density_within_2km",
+    "hist_atm_fraud_count_90d",
+    "hist_atm_hour_affinity",
+    "burstiness_score",
+    "amount_deviation_score",
+    "mule_link_score",
+    "mule_graph_degree",
+    "fraud_type",
+    "last_channel",
+    "population_group"
+  ],
+  "total_features": 25,
+  "best_iteration": 1,
+  "data_summary": {
+    "train_cases": 3889,
+    "val_cases": 525,
+    "test_cases": 459,
+    "train_rows": 97225,
+    "test_rows": 11475
+  }
+}

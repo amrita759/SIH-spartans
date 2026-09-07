@@ -1,0 +1,29 @@
+# Python & Environment
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.env
+venv/
+env/
+ENV/
+.venv/
+
+# Pytest & Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Raw Large Datasets (Do not push heavy raw CSVs/ZIPs to GitHub)
+datasets/
+scratch/
+*.zip
+*.csv
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini

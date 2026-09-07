@@ -1,0 +1,58 @@
+project:
+  name: "SIH26184_Predictive_Cash_Withdrawal_Intelligence"
+  version: "1.0.0"
+  random_seed: 42
+
+paths:
+  raw_transactions: "datasets/indian_banking_transactions.csv"
+  raw_atms: "datasets/atm location_bankbranches/Banking Export Data Excel_1788713396351.csv"
+  raw_branches: "datasets/atm location_bankbranches/Banking Export Data Excel_1788713525137.csv"
+  ncrb_table_9a1: "datasets/NCRB_CII_2023_Table_9A.1_0.csv"
+  ncrb_table_9a2: "datasets/NCRB_CII_2023_Table_9A.2_0.csv"
+  processed_atms: "data/processed/atms_indexed.parquet"
+  processed_branches: "data/processed/branches_indexed.parquet"
+  grounded_cases: "data/synthetic/grounded_cases.json"
+  grounded_dataset: "data/synthetic/candidate_dataset.parquet"
+  artifacts_dir: "artifacts"
+  model_dir: "artifacts/model"
+  metadata_dir: "artifacts/metadata"
+  explainability_dir: "artifacts/explainability"
+
+prediction:
+  default_window_hours: 6
+  supported_windows_hours: [6, 12, 24]
+  candidate_generation:
+    max_candidates_per_case: 30
+    spatial_radius_km: 20.0
+    include_historical_hotspots: true
+    include_bank_affinity: true
+    min_candidates: 10
+
+data_split:
+  # Chronological split on case complaint time
+  train_end: "2022-12-31T23:59:59"
+  val_end: "2023-06-30T23:59:59"
+  # Test is after val_end through 2024-01-01
+
+risk_scoring:
+  bands:
+    low: [0.0, 30.0]
+    medium: [30.0, 60.0]
+    high: [60.0, 80.0]
+    critical: [80.0, 100.0]
+
+model:
+  main_model: "lightgbm"
+  lightgbm_params:
+    objective: "binary"
+    metric: "average_precision"
+    boosting_type: "gbdt"
+    learning_rate: 0.05
+    n_estimators: 250
+    num_leaves: 31
+    max_depth: 6
+    subsample: 0.8
+    colsample_bytree: 0.8
+    scale_pos_weight: 15.0
+    random_state: 42
+    verbose: -1

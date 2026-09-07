@@ -1,0 +1,15 @@
+{
+  "pr_auc": 0.0295,
+  "roc_auc": 0.505,
+  "precision": 0.0,
+  "recall": 0.0,
+  "f1": 0.0,
+  "hit_at_1": 0.0437,
+  "hit_at_3": 0.1406,
+  "hit_at_5": 0.2406,
+  "hit_at_10": 0.4375,
+  "recall_at_5": 0.2406,
+  "recall_at_10": 0.4375,
+  "mrr": 0.1677,
+  "evaluated_cashout_cases": 320
+}
