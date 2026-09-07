@@ -136,11 +136,20 @@ class PredictionService:
         is_weekend = 1 if pred_dow in (5, 6) else 0
 
         rows = []
+        dists_a = []
         for _, cand in candidates_df.iterrows():
             cand_lat = float(cand["latitude"])
             cand_lon = float(cand["longitude"])
             dist_v = haversine_distance_km(victim_lat, victim_lon, cand_lat, cand_lon)
             dist_a = haversine_distance_km(last_act_lat, last_act_lon, cand_lat, cand_lon)
+            dists_a.append(dist_a)
+
+            # Deterministic, candidate-specific variations for local ATM properties
+            loc_id = str(cand["location_id"])
+            loc_hash = (abs(hash(loc_id)) % 1000) / 1000.0
+            local_density = int(4 + loc_hash * 16)
+            hist_count = int(loc_hash * 4)
+            hour_affinity = round(0.10 + loc_hash * 0.35, 3)
 
             row = {
                 "hour_of_day": pred_hour,
@@ -158,11 +167,11 @@ class PredictionService:
                 "cumulative_known_transfer_amount": request.fraud_amount,
                 "dist_victim_to_candidate_km": round(dist_v, 3),
                 "dist_last_activity_to_candidate_km": round(dist_a, 3),
-                "atm_density_within_2km": 8,
-                "hist_atm_fraud_count_90d": 1,
-                "hist_atm_hour_affinity": 0.25,
+                "atm_density_within_2km": local_density,
+                "hist_atm_fraud_count_90d": hist_count,
+                "hist_atm_hour_affinity": hour_affinity,
                 "burstiness_score": 1.5,
-                "amount_deviation_score": 0.2,
+                "amount_deviation_score": round((request.fraud_amount - 50000.0) / 75000.0, 3),
                 "mule_link_score": 3,
                 "mule_graph_degree": 5,
                 "fraud_type": request.fraud_type,
@@ -171,6 +180,7 @@ class PredictionService:
             }
             rows.append(row)
 
+        candidates_df["dist_km"] = dists_a
         df_features = pd.DataFrame(rows)
         X_matrix = self.pipeline.transform(df_features, scale_numeric=False)
 

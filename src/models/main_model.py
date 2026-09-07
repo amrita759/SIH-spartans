@@ -14,16 +14,25 @@ import datetime
 import numpy as np
 import pandas as pd
 import lightgbm as lgb
-from typing import Dict, Any
+from typing import Dict, Any, Optional, Tuple
 
 from src.features.feature_pipeline import FeaturePipeline
 from src.evaluation.metrics import evaluate_model_performance, format_metrics_table
 
 class MainModelTrainer:
     """Trains, evaluates, and packages the main LightGBM model."""
-    def __init__(self, version: str = "v1.0.0"):
+    def __init__(
+        self,
+        version: str = "v1.0.0",
+        artifact_dir: Optional[str] = None,
+        pipeline: Optional[FeaturePipeline] = None
+    ):
         self.version = version
-        self.pipeline = FeaturePipeline.load(version=version)
+        self.artifact_dir = artifact_dir
+        if pipeline is not None:
+            self.pipeline = pipeline
+        else:
+            self.pipeline = FeaturePipeline.load(artifact_dir=artifact_dir, version=version)
         self.model = None
 
     def train(

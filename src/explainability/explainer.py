@@ -15,7 +15,7 @@ import joblib
 import numpy as np
 import pandas as pd
 import shap
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 FACTOR_DESCRIPTIONS = {
     "dist_last_activity_to_candidate_km": "Close geographic proximity to last known fraudulent transaction",
@@ -49,9 +49,32 @@ class SHAPExplainer:
     """Computes SHAP explanations for Tree models."""
     def __init__(
         self,
-        model_path: str = "artifacts/model/model_v1.0.0.joblib",
-        feature_schema_path: str = "artifacts/model/feature_schema_v1.0.0.json"
+        model_path: Optional[str] = None,
+        feature_schema_path: Optional[str] = None,
+        version: str = "v1.0.0"
     ):
+        if model_path is None or not os.path.exists(model_path):
+            candidate_model_paths = [
+                f"artifacts/model/model_{version}.joblib",
+                f"../artifacts/model/model_{version}.joblib",
+                os.path.abspath(os.path.join(os.path.dirname(__file__), f"../../artifacts/model/model_{version}.joblib"))
+            ]
+            for p in candidate_model_paths:
+                if os.path.exists(p):
+                    model_path = p
+                    break
+
+        if feature_schema_path is None or not os.path.exists(feature_schema_path):
+            candidate_schema_paths = [
+                f"artifacts/model/feature_schema_{version}.json",
+                f"../artifacts/model/feature_schema_{version}.json",
+                os.path.abspath(os.path.join(os.path.dirname(__file__), f"../../artifacts/model/feature_schema_{version}.json"))
+            ]
+            for p in candidate_schema_paths:
+                if os.path.exists(p):
+                    feature_schema_path = p
+                    break
+
         self.model = joblib.load(model_path)
         with open(feature_schema_path, "r") as f:
             schema = json.load(f)

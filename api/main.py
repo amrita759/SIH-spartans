@@ -48,6 +48,13 @@ app.include_router(health.router)
 app.include_router(model_info.router)
 app.include_router(prediction.router)
 
+from fastapi.responses import RedirectResponse
+
+@app.get("/", include_in_schema=False)
+def root_redirect():
+    """Redirect root path to interactive Swagger API documentation."""
+    return RedirectResponse(url="/docs")
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("api.main:app", host="0.0.0.0", port=8000, reload=False)

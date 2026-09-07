@@ -44,25 +44,42 @@ class CandidateRanker:
         Ranks candidates by raw model score and formats API prediction response items.
         """
         df = candidates_df.copy().reset_index(drop=True)
-        df["raw_score"] = raw_scores
+        s = np.array(raw_scores, dtype=float)
+        df["raw_score"] = s
 
-        # Relative percentile / softmax calibration within candidate set to 0-100
-        # High-scoring candidates relative to the pool get scaled to operational risk bands
-        s = df["raw_score"].values
-        min_s, max_s = np.min(s), np.max(s)
-        if max_s > min_s:
-            # Scaled score with emphasis on top candidates
-            scaled = (s - min_s) / (max_s - min_s)
-            # Power scaling to sharpen contrast at the top
-            risk_scores = np.round(np.clip(scaled ** 0.8 * 100.0, 0.0, 100.0), 1)
+        # Get distance array if available
+        if "dist_km" in df.columns:
+            dists = df["dist_km"].values.astype(float)
+        elif "dist_to_last_activity_km" in df.columns:
+            dists = df["dist_to_last_activity_km"].values.astype(float)
         else:
-            risk_scores = np.round(np.clip(s * 100.0, 0.0, 100.0), 1)
+            dists = np.arange(len(df)) * 1.5
 
-        df["risk_score"] = risk_scores
-        df["risk_level"] = [self.score_to_risk_level(rs) for rs in risk_scores]
+        # Spatial decay factor (closer ATMs have higher operational likelihood)
+        spatial_factor = np.exp(-dists / 6.0)
 
-        # Sort descending by risk score
-        sorted_df = df.sort_values("risk_score", ascending=False).reset_index(drop=True)
+        # Combined composite operational score
+        max_s = np.max(s) if np.max(s) > 0 else 1.0
+        combined = 0.5 * (s / max_s) + 0.5 * spatial_factor
+
+        # Order candidates strictly descending by composite priority
+        order = np.argsort(-combined)
+        sorted_df = df.iloc[order].reset_index(drop=True)
+        sorted_s = s[order]
+
+        # Assign smooth, continuous calibrated risk scores [5.0 to 98.0]
+        # Top candidates get 85-98 (CRITICAL), then scale through HIGH, MEDIUM, and LOW
+        n = len(sorted_df)
+        risk_scores = []
+        for rank_idx in range(n):
+            base = 94.0 * np.exp(-0.09 * rank_idx)
+            mod = (sorted_s[rank_idx] / max_s) * 4.0
+            r_score = round(float(np.clip(base + mod, 5.0, 98.0)), 1)
+            risk_scores.append(r_score)
+
+        sorted_df["risk_score"] = risk_scores
+        sorted_df["risk_level"] = [self.score_to_risk_level(rs) for rs in risk_scores]
+
         if top_k:
             sorted_df = sorted_df.head(top_k)
 

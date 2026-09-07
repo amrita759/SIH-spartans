@@ -134,16 +134,36 @@ class FeaturePipeline:
         print(f"Feature pipeline and schema saved to {artifact_dir}")
 
     @classmethod
-    def load(cls, artifact_dir: str = "artifacts/model", version: str = "v1.0.0"):
-        """Loads fitted transformers and restores pipeline."""
-        scaler_path = os.path.join(artifact_dir, f"scaler_{version}.joblib")
-        encoder_path = os.path.join(artifact_dir, f"encoder_{version}.joblib")
-        if not os.path.exists(scaler_path) or not os.path.exists(encoder_path):
-            raise FileNotFoundError(f"Fitted transformers not found in {artifact_dir}")
+    def load(cls, artifact_dir: Optional[str] = None, version: str = "v1.0.0"):
+        """Loads fitted transformers and restores pipeline with path auto-resolution."""
+        candidate_dirs = []
+        if artifact_dir:
+            candidate_dirs.append(artifact_dir)
+            candidate_dirs.append(os.path.join("..", artifact_dir))
+        
+        # Default fallback locations
+        candidate_dirs.extend([
+            "artifacts/model",
+            "../artifacts/model",
+            os.path.abspath(os.path.join(os.path.dirname(__file__), "../../artifacts/model"))
+        ])
+
+        resolved_dir = None
+        for cdir in candidate_dirs:
+            scaler_path = os.path.join(cdir, f"scaler_{version}.joblib")
+            encoder_path = os.path.join(cdir, f"encoder_{version}.joblib")
+            if os.path.exists(scaler_path) and os.path.exists(encoder_path):
+                resolved_dir = cdir
+                break
+
+        if resolved_dir is None:
+            raise FileNotFoundError(
+                f"Fitted transformers not found in any searched locations: {candidate_dirs}"
+            )
 
         pipeline = cls(version=version)
-        pipeline.scaler = joblib.load(scaler_path)
-        pipeline.encoder = joblib.load(encoder_path)
+        pipeline.scaler = joblib.load(os.path.join(resolved_dir, f"scaler_{version}.joblib"))
+        pipeline.encoder = joblib.load(os.path.join(resolved_dir, f"encoder_{version}.joblib"))
         pipeline.is_fitted = True
         return pipeline
 

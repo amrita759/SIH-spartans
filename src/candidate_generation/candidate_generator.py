@@ -10,7 +10,7 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 import pandas as pd
 import numpy as np
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from src.data.atm_processor import haversine_distance_km
 
 class CandidateGenerator:
@@ -20,7 +20,22 @@ class CandidateGenerator:
     2. Historical district hotspots
     3. Bank affinity
     """
-    def __init__(self, atms_parquet_path: str = "data/processed/atms_indexed.parquet"):
+    def __init__(self, atms_parquet_path: Optional[str] = None):
+        if atms_parquet_path is None or not os.path.exists(atms_parquet_path):
+            candidate_paths = [
+                "data/processed/atms_indexed.parquet",
+                "../data/processed/atms_indexed.parquet",
+                os.path.abspath(os.path.join(os.path.dirname(__file__), "../../data/processed/atms_indexed.parquet"))
+            ]
+            resolved_path = None
+            for cp in candidate_paths:
+                if os.path.exists(cp):
+                    resolved_path = cp
+                    break
+            if resolved_path is None:
+                raise FileNotFoundError(f"Indexed ATMs parquet not found in {candidate_paths}")
+            atms_parquet_path = resolved_path
+
         self.atms_df = pd.read_parquet(atms_parquet_path)
         # Pre-group by state and district for sub-millisecond retrieval
         self.state_groups = {state: group for state, group in self.atms_df.groupby("state")}

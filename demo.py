@@ -19,24 +19,22 @@ def main():
     
     # 2. Simulated Active Cybercrime Complaint at Prediction Time T
     sample_case = PredictRequest(
-        case_id="CF2026_MUM_LIVE_DEMO",
-        prediction_time="2026-09-07T14:30:00",
+        case_id="CF2026_DELHI_TEST",
+        prediction_time="2026-09-07T03:30:00",  # Late night 3:30 AM
         prediction_window_hours=6,
-        complaint_time="2026-09-07T13:55:00",
-        fraud_type="investment_scam",
-        fraud_amount=175000.00,
-        state="MAHARASHTRA",
-        district="MUMBAI SUBURBAN",
-        victim_latitude=19.0760,
-        victim_longitude=72.8777,
+        fraud_type="corporate_cyber_heist",  # Changed from investment scam
+        fraud_amount=1200000.00,  # ₹12 Lakhs (Large corporate theft)
+        state="DELHI",  # Changed from MAHARASHTRA
+        district="DELHI",
+        victim_latitude=28.7041,  # Delhi coordinates
+        victim_longitude=77.1025,
         last_known_activity={
-            "timestamp": "2026-09-07T14:15:00",
-            "channel": "UPI",
-            "amount": 75000.00,
-            "recipient_account_id": "ACC_MULE_49201",
-            "latitude": 19.0825,
-            "longitude": 72.8850
-        }
+            "timestamp": "2026-09-07T03:15:00",
+            "channel": "RTGS",
+            "amount": 800000.00,
+            "latitude": 28.7050,
+            "longitude": 77.1030,
+            },
     )
 
     print(f"\n[2] Submitting Active Case Snapshot:")
