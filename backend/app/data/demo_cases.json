@@ -1,0 +1,288 @@
+[
+  {
+    "case_id": "CASE-001",
+    "prediction_time": "2026-09-08T11:30:00",
+    "prediction_window_hours": 6,
+    "complaint_time": "2026-09-08T11:15:00",
+    "fraud_type": "investment_scam",
+    "fraud_amount": 150000.0,
+    "state": "MAHARASHTRA",
+    "district": "MUMBAI SUBURBAN",
+    "victim_latitude": 19.0760,
+    "victim_longitude": 72.8777,
+    "last_known_activity": {
+      "timestamp": "2026-09-08T11:10:00",
+      "channel": "UPI",
+      "amount": 75000.0,
+      "recipient_account_id": "ACC_MULE_CASE-001_1",
+      "latitude": 19.0820,
+      "longitude": 72.8850
+    },
+    "ground_truth": {
+      "has_cashout_in_window": true,
+      "withdrawal_location_id": "00010ATM00000A7B",
+      "withdrawal_time": "2026-09-08T14:15:00",
+      "lead_time_hours": 2.75
+    }
+  },
+  {
+    "case_id": "CC-2021-00929",
+    "prediction_time": "2023-07-01T17:29:00",
+    "prediction_window_hours": 6,
+    "complaint_time": "2023-07-01T17:14:00",
+    "fraud_type": "account_takeover",
+    "fraud_amount": 182417.38,
+    "state": "WEST BENGAL",
+    "district": "NORTH 24 PARGANAS",
+    "victim_latitude": 22.700701,
+    "victim_longitude": 88.472233,
+    "last_known_activity": {
+      "timestamp": "2023-07-01T16:37:00",
+      "channel": "Net_Banking",
+      "amount": 83715.72,
+      "recipient_account_id": "ACC_MULE_CC-2021-00929_3",
+      "latitude": 22.693781,
+      "longitude": 88.457335
+    },
+    "ground_truth": {
+      "has_cashout_in_window": true,
+      "withdrawal_location_id": "00010ATM000007M4",
+      "withdrawal_time": "2023-07-01T19:21:00",
+      "lead_time_hours": 1.87
+    }
+  },
+  {
+    "case_id": "CC-2022-00930",
+    "prediction_time": "2023-07-02T21:43:00",
+    "prediction_window_hours": 6,
+    "complaint_time": "2023-07-02T21:26:00",
+    "fraud_type": "upi_phishing",
+    "fraud_amount": 46590.4,
+    "state": "TAMIL NADU",
+    "district": "SIVAGANGA",
+    "victim_latitude": 11.125262,
+    "victim_longitude": 78.699438,
+    "last_known_activity": {
+      "timestamp": "2023-07-02T21:04:00",
+      "channel": "UPI",
+      "amount": 29311.04,
+      "recipient_account_id": "ACC_MULE_CC-2022-00930_2",
+      "latitude": 11.136119,
+      "longitude": 78.685171
+    },
+    "ground_truth": {
+      "has_cashout_in_window": true,
+      "withdrawal_location_id": "00026ATM0000073H",
+      "withdrawal_time": "2023-07-02T23:27:00",
+      "lead_time_hours": 1.73
+    }
+  },
+  {
+    "case_id": "CC-2023-00931",
+    "prediction_time": "2023-07-03T12:30:00",
+    "prediction_window_hours": 6,
+    "complaint_time": "2023-07-03T12:06:00",
+    "fraud_type": "loan_app_extortion",
+    "fraud_amount": 24732.92,
+    "state": "MAHARASHTRA",
+    "district": "AHILYANAGAR",
+    "victim_latitude": 19.732478,
+    "victim_longitude": 75.715581,
+    "last_known_activity": {
+      "timestamp": "2023-07-03T11:27:00",
+      "channel": "UPI",
+      "amount": 16801.7,
+      "recipient_account_id": "ACC_MULE_CC-2023-00931_2",
+      "latitude": 19.715124,
+      "longitude": 75.686772
+    },
+    "ground_truth": {
+      "has_cashout_in_window": true,
+      "withdrawal_location_id": "00029ATM000002MM",
+      "withdrawal_time": "2023-07-03T14:17:00",
+      "lead_time_hours": 1.78
+    }
+  },
+  {
+    "case_id": "CC-2024-00932",
+    "prediction_time": "2023-07-04T23:41:00",
+    "prediction_window_hours": 6,
+    "complaint_time": "2023-07-04T23:21:00",
+    "fraud_type": "upi_phishing",
+    "fraud_amount": 53025.57,
+    "state": "RAJASTHAN",
+    "district": "SIKAR",
+    "victim_latitude": 27.034035,
+    "victim_longitude": 74.239049,
+    "last_known_activity": {
+      "timestamp": "2023-07-04T22:19:00",
+      "channel": "UPI",
+      "amount": 42977.99,
+      "recipient_account_id": "ACC_MULE_CC-2024-00932_2",
+      "latitude": 27.010729,
+      "longitude": 74.222018
+    },
+    "ground_truth": {
+      "has_cashout_in_window": false,
+      "withdrawal_location_id": null,
+      "withdrawal_time": null,
+      "lead_time_hours": null
+    }
+  },
+  {
+    "case_id": "CC-2021-00933",
+    "prediction_time": "2023-07-05T13:43:00",
+    "prediction_window_hours": 6,
+    "complaint_time": "2023-07-05T13:24:00",
+    "fraud_type": "online_banking_fraud",
+    "fraud_amount": 252030.41,
+    "state": "DELHI",
+    "district": "WEST DELHI",
+    "victim_latitude": 28.712767,
+    "victim_longitude": 77.148449,
+    "last_known_activity": {
+      "timestamp": "2023-07-05T13:13:00",
+      "channel": "Net_Banking",
+      "amount": 111457.9,
+      "recipient_account_id": "ACC_MULE_CC-2021-00933_3",
+      "latitude": 28.704882,
+      "longitude": 77.164299
+    },
+    "ground_truth": {
+      "has_cashout_in_window": true,
+      "withdrawal_location_id": "00010ATM000029FT",
+      "withdrawal_time": "2023-07-05T15:50:00",
+      "lead_time_hours": 2.12
+    }
+  },
+  {
+    "case_id": "CC-2022-00934",
+    "prediction_time": "2023-07-06T14:03:00",
+    "prediction_window_hours": 6,
+    "complaint_time": "2023-07-06T13:48:00",
+    "fraud_type": "upi_phishing",
+    "fraud_amount": 41810.8,
+    "state": "ANDHRA PRADESH",
+    "district": "GUNTUR",
+    "victim_latitude": 15.902905,
+    "victim_longitude": 79.732495,
+    "last_known_activity": {
+      "timestamp": "2023-07-06T12:59:00",
+      "channel": "UPI",
+      "amount": 24576.28,
+      "recipient_account_id": "ACC_MULE_CC-2022-00934_2",
+      "latitude": 15.904888,
+      "longitude": 79.716477
+    },
+    "ground_truth": {
+      "has_cashout_in_window": false,
+      "withdrawal_location_id": null,
+      "withdrawal_time": null,
+      "lead_time_hours": null
+    }
+  },
+  {
+    "case_id": "CC-2023-00935",
+    "prediction_time": "2023-07-07T19:00:00",
+    "prediction_window_hours": 6,
+    "complaint_time": "2023-07-07T18:39:00",
+    "fraud_type": "investment_scam",
+    "fraud_amount": 340598.75,
+    "state": "ANDHRA PRADESH",
+    "district": "WEST GODAVARI",
+    "victim_latitude": 15.889923,
+    "victim_longitude": 79.70448,
+    "last_known_activity": {
+      "timestamp": "2023-07-07T18:57:00",
+      "channel": "IMPS",
+      "amount": 188151.94,
+      "recipient_account_id": "ACC_MULE_CC-2023-00935_4",
+      "latitude": 15.903785,
+      "longitude": 79.706792
+    },
+    "ground_truth": {
+      "has_cashout_in_window": false,
+      "withdrawal_location_id": null,
+      "withdrawal_time": null,
+      "lead_time_hours": null
+    }
+  },
+  {
+    "case_id": "CC-2024-00936",
+    "prediction_time": "2023-07-08T16:56:00",
+    "prediction_window_hours": 6,
+    "complaint_time": "2023-07-08T16:38:00",
+    "fraud_type": "upi_phishing",
+    "fraud_amount": 31551.13,
+    "state": "GUJARAT",
+    "district": "AHMEDABAD",
+    "victim_latitude": 23.006942,
+    "victim_longitude": 72.547623,
+    "last_known_activity": {
+      "timestamp": "2023-07-08T15:29:00",
+      "channel": "UPI",
+      "amount": 26827.35,
+      "recipient_account_id": "ACC_MULE_CC-2024-00936_2",
+      "latitude": 23.028701,
+      "longitude": 72.515434
+    },
+    "ground_truth": {
+      "has_cashout_in_window": true,
+      "withdrawal_location_id": "00010ATM00000F54",
+      "withdrawal_time": "2023-07-08T17:56:00",
+      "lead_time_hours": 1.0
+    }
+  },
+  {
+    "case_id": "CC-2021-00937",
+    "prediction_time": "2023-07-09T20:39:00",
+    "prediction_window_hours": 6,
+    "complaint_time": "2023-07-09T20:17:00",
+    "fraud_type": "corporate_cyber_fraud",
+    "fraud_amount": 777259.78,
+    "state": "GUJARAT",
+    "district": "VADODARA",
+    "victim_latitude": 22.331772,
+    "victim_longitude": 73.190244,
+    "last_known_activity": {
+      "timestamp": "2023-07-09T20:23:00",
+      "channel": "RTGS",
+      "amount": 582901.68,
+      "recipient_account_id": "ACC_MULE_CC-2021-00937_4",
+      "latitude": 22.283424,
+      "longitude": 73.163888
+    },
+    "ground_truth": {
+      "has_cashout_in_window": true,
+      "withdrawal_location_id": "00010ATM00001CXA",
+      "withdrawal_time": "2023-07-09T22:29:00",
+      "lead_time_hours": 1.83
+    }
+  },
+  {
+    "case_id": "CC-2022-00938",
+    "prediction_time": "2023-07-10T12:21:00",
+    "prediction_window_hours": 6,
+    "complaint_time": "2023-07-10T12:05:00",
+    "fraud_type": "investment_scam",
+    "fraud_amount": 199420.52,
+    "state": "BIHAR",
+    "district": "BUXAR",
+    "victim_latitude": 25.120077,
+    "victim_longitude": 85.258675,
+    "last_known_activity": {
+      "timestamp": "2023-07-10T12:19:00",
+      "channel": "IMPS",
+      "amount": 136342.51,
+      "recipient_account_id": "ACC_MULE_CC-2022-00938_4",
+      "latitude": 25.135164,
+      "longitude": 85.228703
+    },
+    "ground_truth": {
+      "has_cashout_in_window": false,
+      "withdrawal_location_id": null,
+      "withdrawal_time": null,
+      "lead_time_hours": null
+    }
+  }
+]

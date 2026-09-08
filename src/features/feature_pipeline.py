@@ -2,12 +2,12 @@
 src/features/feature_pipeline.py
 Reusable, leakage-free feature processing pipeline.
 Preprocessors are fitted strictly on the chronological training split.
-Saves versioned feature schemas and transformers to artifacts/model/.
+Saves versioned feature schemas and transformers to artifacts/model/ and models/.
+Supports v1.0.0 and v2.0.0 with backward compatibility.
 """
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 import json
 import joblib
 import numpy as np
@@ -15,58 +15,67 @@ import pandas as pd
 from typing import List, Dict, Tuple, Optional
 from sklearn.preprocessing import StandardScaler, OrdinalEncoder
 
-NUMERICAL_FEATURES = [
-    # Temporal
-    "hour_of_day",
-    "day_of_week",
-    "is_weekend",
-    "time_since_complaint_min",
-    "time_since_last_txn_min",
-    # Velocity
-    "tx_count_last_1h",
-    "tx_count_last_6h",
-    "tx_amount_last_1h",
-    "tx_amount_last_6h",
-    "transfer_count",
-    "amount_velocity_ratio",
-    # Financial
-    "fraud_amount",
-    "cumulative_known_transfer_amount",
-    # Spatial
-    "dist_victim_to_candidate_km",
-    "dist_last_activity_to_candidate_km",
+# Version 1.0.0 Feature Schema (25 features)
+V1_NUMERICAL_FEATURES = [
+    "hour_of_day", "day_of_week", "is_weekend",
+    "time_since_complaint_min", "time_since_last_txn_min",
+    "tx_count_last_1h", "tx_count_last_6h",
+    "tx_amount_last_1h", "tx_amount_last_6h",
+    "transfer_count", "amount_velocity_ratio",
+    "fraud_amount", "cumulative_known_transfer_amount",
+    "dist_victim_to_candidate_km", "dist_last_activity_to_candidate_km",
     "atm_density_within_2km",
+    "hist_atm_fraud_count_90d", "hist_atm_hour_affinity",
+    "burstiness_score", "amount_deviation_score",
+    "mule_link_score", "mule_graph_degree"
+]
+V1_CATEGORICAL_FEATURES = [
+    "fraud_type", "last_channel", "population_group"
+]
+
+# Version 2.0.0 Feature Schema (30 features: adds real Bank & Crime Context, location_type)
+V2_NUMERICAL_FEATURES = [
+    # Temporal
+    "hour_of_day", "day_of_week", "is_weekend",
+    "time_since_complaint_min", "time_since_last_txn_min",
+    # Velocity
+    "tx_count_last_1h", "tx_count_last_6h",
+    "tx_amount_last_1h", "tx_amount_last_6h",
+    "transfer_count", "amount_velocity_ratio", "burstiness_score",
+    # Financial
+    "fraud_amount", "cumulative_known_transfer_amount", "amount_deviation_score",
+    # Spatial
+    "dist_victim_to_candidate_km", "dist_last_activity_to_candidate_km", "atm_density_within_2km",
+    # Bank Context (from RBI monthly statistics & accounts)
+    "bank_match_flag", "bank_monthly_cash_vol",
+    # Crime Context (from NCRB tables)
+    "ncrb_state_cybercrime_rate", "ncrb_atm_fraud_cases",
     # Historical
-    "hist_atm_fraud_count_90d",
-    "hist_atm_hour_affinity",
-    # Behavioural
-    "burstiness_score",
-    "amount_deviation_score",
+    "hist_atm_fraud_count_90d", "hist_atm_hour_affinity",
     # Network
-    "mule_link_score",
-    "mule_graph_degree"
+    "mule_graph_degree", "mule_link_score"
+]
+V2_CATEGORICAL_FEATURES = [
+    "fraud_type", "last_channel", "location_type", "population_group"
 ]
 
-CATEGORICAL_FEATURES = [
-    "fraud_type",
-    "last_channel",
-    "population_group"
-]
-
-METADATA_COLS = [
-    "case_id", "split", "prediction_time", "location_id",
-    "location_name", "candidate_lat", "candidate_lon", "target"
-]
+NUMERICAL_FEATURES = V2_NUMERICAL_FEATURES
+CATEGORICAL_FEATURES = V2_CATEGORICAL_FEATURES
 
 class FeaturePipeline:
     """
     Leakage-free feature transformer. Fits only on training data.
     Ensures exact feature ordering for train, validation, test, and FastAPI inference.
     """
-    def __init__(self, version: str = "v1.0.0"):
+    def __init__(self, version: str = "v2.0.0"):
         self.version = version
-        self.numerical_features = NUMERICAL_FEATURES
-        self.categorical_features = CATEGORICAL_FEATURES
+        if "v1" in version:
+            self.numerical_features = list(V1_NUMERICAL_FEATURES)
+            self.categorical_features = list(V1_CATEGORICAL_FEATURES)
+        else:
+            self.numerical_features = list(V2_NUMERICAL_FEATURES)
+            self.categorical_features = list(V2_CATEGORICAL_FEATURES)
+
         self.all_feature_names = self.numerical_features + self.categorical_features
         self.scaler = StandardScaler()
         self.encoder = OrdinalEncoder(
@@ -89,13 +98,12 @@ class FeaturePipeline:
     def transform(self, df: pd.DataFrame, scale_numeric: bool = False) -> np.ndarray:
         """
         Transforms input dataframe into feature array.
-        For tree models (LightGBM/XGBoost/RF), scale_numeric is usually False to preserve interpretability.
+        For tree models (LightGBM/RF), scale_numeric is usually False to preserve interpretability.
         For Logistic Regression, scale_numeric is True.
         """
         if not self.is_fitted:
             raise ValueError("FeaturePipeline is not fitted yet. Call fit() first.")
 
-        # Ensure all columns exist
         df_copy = df.copy()
         for col in self.numerical_features:
             if col not in df_copy.columns:
@@ -117,7 +125,7 @@ class FeaturePipeline:
         return self.all_feature_names
 
     def save(self, artifact_dir: str = "artifacts/model"):
-        """Saves pipeline artifacts and schema JSON."""
+        """Saves pipeline artifacts and schema JSON to both artifact_dir and models/ directory."""
         os.makedirs(artifact_dir, exist_ok=True)
         joblib.dump(self.scaler, os.path.join(artifact_dir, f"scaler_{self.version}.joblib"))
         joblib.dump(self.encoder, os.path.join(artifact_dir, f"encoder_{self.version}.joblib"))
@@ -131,20 +139,22 @@ class FeaturePipeline:
         }
         with open(os.path.join(artifact_dir, f"feature_schema_{self.version}.json"), "w") as f:
             json.dump(schema, f, indent=2)
-        print(f"Feature pipeline and schema saved to {artifact_dir}")
+        print(f"Feature pipeline and schema ({self.version}) saved to {artifact_dir}")
 
     @classmethod
-    def load(cls, artifact_dir: Optional[str] = None, version: str = "v1.0.0"):
+    def load(cls, artifact_dir: Optional[str] = None, version: str = "v2.0.0"):
         """Loads fitted transformers and restores pipeline with path auto-resolution."""
         candidate_dirs = []
         if artifact_dir:
             candidate_dirs.append(artifact_dir)
             candidate_dirs.append(os.path.join("..", artifact_dir))
-        
-        # Default fallback locations
+
         candidate_dirs.extend([
+            f"models/{version}",
+            f"models/current",
             "artifacts/model",
             "../artifacts/model",
+            os.path.abspath(os.path.join(os.path.dirname(__file__), f"../../models/{version}")),
             os.path.abspath(os.path.join(os.path.dirname(__file__), "../../artifacts/model"))
         ])
 
@@ -157,11 +167,25 @@ class FeaturePipeline:
                 break
 
         if resolved_dir is None:
+            # Fallback to v1 if v2 not yet built
+            if version != "v1.0.0":
+                try:
+                    return cls.load(artifact_dir=artifact_dir, version="v1.0.0")
+                except Exception:
+                    pass
             raise FileNotFoundError(
-                f"Fitted transformers not found in any searched locations: {candidate_dirs}"
+                f"Fitted transformers for version {version} not found in: {candidate_dirs}"
             )
 
         pipeline = cls(version=version)
+        schema_path = os.path.join(resolved_dir, f"feature_schema_{version}.json")
+        if os.path.exists(schema_path):
+            with open(schema_path) as f:
+                schema = json.load(f)
+                pipeline.numerical_features = schema.get("numerical_features", pipeline.numerical_features)
+                pipeline.categorical_features = schema.get("categorical_features", pipeline.categorical_features)
+                pipeline.all_feature_names = schema.get("feature_names", pipeline.all_feature_names)
+
         pipeline.scaler = joblib.load(os.path.join(resolved_dir, f"scaler_{version}.joblib"))
         pipeline.encoder = joblib.load(os.path.join(resolved_dir, f"encoder_{version}.joblib"))
         pipeline.is_fitted = True
@@ -171,14 +195,10 @@ if __name__ == "__main__":
     dataset_path = "data/synthetic/candidate_dataset.parquet"
     df = pd.read_parquet(dataset_path)
     train_df = df[df["split"] == "train"]
-    val_df = df[df["split"] == "val"]
-    test_df = df[df["split"] == "test"]
-
-    print(f"Fitting FeaturePipeline on {len(train_df)} training rows...")
-    pipeline = FeaturePipeline(version="v1.0.0")
+    print(f"Fitting FeaturePipeline v2.0.0 on {len(train_df)} training rows...")
+    pipeline = FeaturePipeline(version="v2.0.0")
     pipeline.fit(train_df)
-    pipeline.save()
-
-    X_test = pipeline.transform(test_df)
-    print("X_test transformed shape:", X_test.shape)
-    print("Features:", pipeline.get_feature_names())
+    pipeline.save(artifact_dir="artifacts/model")
+    pipeline.save(artifact_dir="models/v2")
+    pipeline.save(artifact_dir="models/current")
+    print("Features (30 total):", pipeline.get_feature_names())

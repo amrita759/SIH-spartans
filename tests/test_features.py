@@ -13,14 +13,14 @@ def test_feature_pipeline_fit_transform():
     train_df = df[df["split"] == "train"].head(100)
     test_df = df[df["split"] == "test"].head(20)
 
-    pipeline = FeaturePipeline(version="v1.0.0_test")
+    pipeline = FeaturePipeline(version="v2.0.0_test")
     pipeline.fit(train_df)
 
     X_train = pipeline.transform(train_df)
     X_test = pipeline.transform(test_df)
 
-    assert X_train.shape[1] == len(NUMERICAL_FEATURES) + len(CATEGORICAL_FEATURES)
-    assert X_test.shape[1] == len(NUMERICAL_FEATURES) + len(CATEGORICAL_FEATURES)
+    assert X_train.shape[1] == len(pipeline.numerical_features) + len(pipeline.categorical_features)
+    assert X_test.shape[1] == len(pipeline.numerical_features) + len(pipeline.categorical_features)
     assert not np.isnan(X_train).any()
     assert not np.isnan(X_test).any()
 
